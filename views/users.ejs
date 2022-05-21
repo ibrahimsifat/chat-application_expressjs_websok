@@ -45,7 +45,7 @@
       // toasts
       const deleteToast = Toastify({
           text: "User was deleted successfully!",
-          duration: 3000,
+          duration: 1000,
       });
 
       const deleteErrorToast = Toastify({
@@ -61,11 +61,16 @@
 
           let result = await response.json();
 
+        
           if (result.errors) {
               deleteErrorToast.showToast();
           } else {
-              deleteToast.showToast();
+              deleteToast.showToast();  
+             
               document.getElementById(userId).remove();
+              document.location.reload()
+                  // reload the page 
+      
           }
       }
   </script>
