@@ -2,13 +2,20 @@
 const bcrypt = require("bcrypt");
 const { unlink } = require("fs");
 const path = require("path");
-
+const Users = require("../models/People");
 // internal export
 const User = require("../models/People");
 
 // to get users page
-function getUsers(req, res) {
-  res.render("users");
+async function getUsers(req, res, next) {
+  try {
+    const users = await Users.find();
+    res.render("users", {
+      users: users,
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 // add user
@@ -44,4 +51,31 @@ async function addUser(req, res, next) {
     });
   }
 }
-module.exports = { getUsers, addUser };
+
+// remove user
+async function removeUser(req, res, next) {
+  try {
+    const user = await User.findOneAndDelete({
+      _id: req.params.id,
+    });
+
+    // remove user avatar if any
+    if (user.avatar) {
+      unlink(
+        path.join(__dirname, `/../public/uploads/avatar/${user.avatar}`),
+        (err) => {
+          if (err) console.log(err);
+        }
+      );
+    }
+  } catch (err) {
+    res.status(500).json({
+      errors: {
+        common: {
+          msg: "Could not delete the user",
+        },
+      },
+    });
+  }
+}
+module.exports = { getUsers, addUser, removeUser };
