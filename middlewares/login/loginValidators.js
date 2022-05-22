@@ -6,7 +6,7 @@ const doLoginValidators = [
       min: 1,
     })
     .withMessage("Mobile number or email is required"),
-  check("password").isLength({ min: 1 }).withMessage("password is required"),
+  check("password").isLength({ min: 1 }).withMessage("Password is required"),
 ];
 
 const doLoginValidationHandler = function (req, res, next) {
@@ -19,12 +19,11 @@ const doLoginValidationHandler = function (req, res, next) {
       data: {
         username: req.body.username,
       },
-      error: {
-        errors: mappedErrors,
-      },
+      errors: mappedErrors,
     });
   }
 };
+
 module.exports = {
   doLoginValidators,
   doLoginValidationHandler,

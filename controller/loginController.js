@@ -3,10 +3,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 
-// internal import
+// internal imports
 const User = require("../models/People");
-// to get login page
-function getLogin(req, res) {
+
+// get login page
+function getLogin(req, res, next) {
   res.render("index");
 }
 
@@ -23,13 +24,15 @@ async function login(req, res, next) {
         req.body.password,
         user.password
       );
+
       if (isValidPassword) {
         // prepare the user object to generate token
         const userObject = {
+          userid: user._id,
           username: user.name,
-          mobile: user.mobile,
           email: user.email,
-          role: "user",
+          avatar: user.avatar || null,
+          role: user.role || "user",
         };
 
         // generate token
@@ -47,21 +50,21 @@ async function login(req, res, next) {
         // set logged in user local identifier
         res.locals.loggedInUser = userObject;
 
-        res.render("inbox");
+        res.redirect("inbox");
       } else {
-        throw createError("Login failed! Please try again");
+        throw createError("Login failed! Please try again.");
       }
     } else {
-      throw createError("Login failed! Please try again");
+      throw createError("Login failed! Please try again.");
     }
   } catch (err) {
     res.render("index", {
       data: {
         username: req.body.username,
       },
-      error: {
+      errors: {
         common: {
-          msg: err.massage,
+          msg: err.message,
         },
       },
     });
@@ -71,6 +74,11 @@ async function login(req, res, next) {
 // do logout
 function logout(req, res) {
   res.clearCookie(process.env.COOKIE_NAME);
-  res.send("Logged out");
+  res.send("logged out");
 }
-module.exports = { getLogin, login, logout };
+
+module.exports = {
+  getLogin,
+  login,
+  logout,
+};
